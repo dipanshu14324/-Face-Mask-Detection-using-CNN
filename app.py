@@ -123,7 +123,6 @@ def download_model():
             )
 
 
-
 # -------------------------------
 # Load Model
 # -------------------------------
@@ -135,21 +134,14 @@ def load_model():
 
     model = FaceMaskCNN()
 
-
     checkpoint = torch.load(
-    MODEL_PATH,
-    map_location=torch.device("cpu"),
-    weights_only=False
-)
-
-
-    model.load_state_dict(
-        checkpoint
+        MODEL_PATH,
+        map_location="cpu"
     )
 
+    model.load_state_dict(checkpoint)
 
     model.eval()
-
 
     return model
 
