@@ -4,14 +4,6 @@ A Deep Learning based Face Mask Detection system that classifies whether a perso
 
 The project uses a custom Convolutional Neural Network (CNN) built with PyTorch and provides an interactive web application using Streamlit.
 
-## 🚀 Live Demo
-
-🔗 Streamlit App:
-
-https://facemaskdetection23.streamlit.app/
-
----
-
 # 📌 Project Overview
 
 Face Mask Detection is a computer vision application that uses Deep Learning to identify mask usage from facial images.
