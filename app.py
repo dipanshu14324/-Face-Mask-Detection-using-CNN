@@ -104,7 +104,7 @@ MODEL_PATH = "best_face_mask_model.pth"
 
 # Paste your direct download link here
 
-MODEL_URL = "PASTE_MODEL_LINK_HERE"
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1j0aJltlC4dQ2ixqtv4xBHkuCufYy_rXx"
 
 
 
@@ -118,6 +118,8 @@ def download_model():
                 MODEL_URL,
                 MODEL_PATH
             )
+
+            st.success("Model downloaded successfully")
 
 
 
