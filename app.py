@@ -3,9 +3,6 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
-import os
-import gdown
-import urllib.request
 
 
 # -------------------------------
@@ -25,6 +22,7 @@ st.write(
 )
 
 
+
 # -------------------------------
 # Classes
 # -------------------------------
@@ -35,9 +33,10 @@ classes = [
 ]
 
 
+
 # -------------------------------
 # CNN Architecture
-# Same as training
+# Same as Training
 # -------------------------------
 
 class FaceMaskCNN(nn.Module):
@@ -45,6 +44,7 @@ class FaceMaskCNN(nn.Module):
     def __init__(self):
 
         super().__init__()
+
 
         self.features = nn.Sequential(
 
@@ -96,54 +96,42 @@ class FaceMaskCNN(nn.Module):
 
 
 
-# -------------------------------
-# Model Download
-# -------------------------------
-
-MODEL_PATH = "best_face_mask_model.pth"
-
-
-# Paste your direct download link here
-
-MODEL_PATH = "best_face_mask_model.pth"
-
-FILE_ID = "1j0aJltlC4dQ2ixqtv4xBHkuCufYy_rXx"
-
-
-def download_model():
-
-    if not os.path.exists(MODEL_PATH):
-
-        with st.spinner("Downloading model..."):
-
-            gdown.download(
-                id=FILE_ID,
-                output=MODEL_PATH,
-                quiet=False
-            )
-
 
 # -------------------------------
-# Load Model
+# Load Model From GitHub LFS
 # -------------------------------
+
+
+MODEL_PATH = "models/best_face_mask_model.pth"
+
+
 
 @st.cache_resource
 def load_model():
 
-    download_model()
 
     model = FaceMaskCNN()
 
+
     checkpoint = torch.load(
+
         MODEL_PATH,
-        map_location="cpu"
+
+        map_location=torch.device("cpu")
+
     )
 
-    model.load_state_dict(checkpoint)
+
+    model.load_state_dict(
+        checkpoint
+    )
+
 
     model.eval()
 
+
     return model
+
 
 
 
@@ -152,8 +140,9 @@ model = load_model()
 
 
 # -------------------------------
-# Image Transform
+# Image Preprocessing
 # -------------------------------
+
 
 transform = transforms.Compose([
 
@@ -161,7 +150,9 @@ transform = transforms.Compose([
         (224,224)
     ),
 
+
     transforms.ToTensor(),
+
 
     transforms.Normalize(
 
@@ -170,6 +161,7 @@ transform = transforms.Compose([
             0.456,
             0.406
         ],
+
 
         std=[
             0.229,
@@ -183,9 +175,12 @@ transform = transforms.Compose([
 
 
 
+
+
 # -------------------------------
 # Upload Image
 # -------------------------------
+
 
 uploaded_file = st.file_uploader(
 
@@ -209,6 +204,7 @@ if uploaded_file:
     ).convert("RGB")
 
 
+
     st.image(
 
         image,
@@ -220,10 +216,12 @@ if uploaded_file:
     )
 
 
+
     img = transform(image)
 
 
     img = img.unsqueeze(0)
+
 
 
 
@@ -252,6 +250,7 @@ if uploaded_file:
 
 
 
+
     result = classes[
         prediction.item()
     ]
@@ -261,7 +260,9 @@ if uploaded_file:
 
 
 
+
     if result == "with_mask":
+
 
         st.success(
 
@@ -271,6 +272,7 @@ if uploaded_file:
 
 
     else:
+
 
         st.error(
 
