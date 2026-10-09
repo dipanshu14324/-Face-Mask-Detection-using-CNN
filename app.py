@@ -1,13 +1,15 @@
-
-
 import streamlit as st
 import torch
 import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
+import os
+import urllib.request
 
 
-# Page configuration
+# -------------------------------
+# Page Configuration
+# -------------------------------
 
 st.set_page_config(
     page_title="Face Mask Detection",
@@ -22,7 +24,9 @@ st.write(
 )
 
 
+# -------------------------------
 # Classes
+# -------------------------------
 
 classes = [
     "with_mask",
@@ -30,7 +34,10 @@ classes = [
 ]
 
 
-# CNN Architecture (same as training)
+# -------------------------------
+# CNN Architecture
+# Same as training
+# -------------------------------
 
 class FaceMaskCNN(nn.Module):
 
@@ -88,23 +95,57 @@ class FaceMaskCNN(nn.Module):
 
 
 
-# Load model
+# -------------------------------
+# Model Download
+# -------------------------------
+
+MODEL_PATH = "best_face_mask_model.pth"
+
+
+# Paste your direct download link here
+
+MODEL_URL = "PASTE_MODEL_LINK_HERE"
+
+
+
+def download_model():
+
+    if not os.path.exists(MODEL_PATH):
+
+        with st.spinner("Downloading model..."):
+
+            urllib.request.urlretrieve(
+                MODEL_URL,
+                MODEL_PATH
+            )
+
+
+
+# -------------------------------
+# Load Model
+# -------------------------------
 
 @st.cache_resource
 def load_model():
 
+    download_model()
+
     model = FaceMaskCNN()
 
 
+    checkpoint = torch.load(
+        MODEL_PATH,
+        map_location="cpu"
+    )
+
+
     model.load_state_dict(
-        torch.load(
-            "models/best_face_mask_model.pth",
-            map_location="cpu"
-        )
+        checkpoint
     )
 
 
     model.eval()
+
 
     return model
 
@@ -114,28 +155,52 @@ model = load_model()
 
 
 
-# Image preprocessing
+# -------------------------------
+# Image Transform
+# -------------------------------
 
 transform = transforms.Compose([
 
-    transforms.Resize((224,224)),
+    transforms.Resize(
+        (224,224)
+    ),
 
     transforms.ToTensor(),
 
     transforms.Normalize(
-        mean=[0.485,0.456,0.406],
-        std=[0.229,0.224,0.225]
+
+        mean=[
+            0.485,
+            0.456,
+            0.406
+        ],
+
+        std=[
+            0.229,
+            0.224,
+            0.225
+        ]
+
     )
 
 ])
 
 
 
-# Upload image
+# -------------------------------
+# Upload Image
+# -------------------------------
 
 uploaded_file = st.file_uploader(
+
     "Upload Face Image",
-    type=["jpg","jpeg","png"]
+
+    type=[
+        "jpg",
+        "jpeg",
+        "png"
+    ]
+
 )
 
 
@@ -149,13 +214,18 @@ if uploaded_file:
 
 
     st.image(
+
         image,
+
         caption="Uploaded Image",
+
         use_container_width=True
+
     )
 
 
     img = transform(image)
+
 
     img = img.unsqueeze(0)
 
@@ -163,21 +233,32 @@ if uploaded_file:
 
     with torch.no_grad():
 
+
         output = model(img)
 
+
         probability = torch.softmax(
+
             output,
+
             dim=1
+
         )
 
 
         confidence, prediction = torch.max(
+
             probability,
+
             1
+
         )
 
 
-    result = classes[prediction.item()]
+
+    result = classes[
+        prediction.item()
+    ]
 
 
     confidence = confidence.item()*100
@@ -187,12 +268,16 @@ if uploaded_file:
     if result == "with_mask":
 
         st.success(
+
             f"😷 Mask Detected\n\nConfidence: {confidence:.2f}%"
+
         )
+
 
     else:
 
         st.error(
-            f"😐 No Mask Detected\n\nConfidence: {confidence:.2f}%"
-        )
 
+            f"😐 No Mask Detected\n\nConfidence: {confidence:.2f}%"
+
+        )
