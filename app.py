@@ -4,6 +4,7 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 import os
+import gdown
 import urllib.request
 
 
@@ -104,8 +105,9 @@ MODEL_PATH = "best_face_mask_model.pth"
 
 # Paste your direct download link here
 
-MODEL_URL = "https://drive.google.com/uc?export=download&id=1j0aJltlC4dQ2ixqtv4xBHkuCufYy_rXx"
+MODEL_PATH = "best_face_mask_model.pth"
 
+FILE_ID = "1j0aJltlC4dQ2ixqtv4xBHkuCufYy_rXx"
 
 
 def download_model():
@@ -114,12 +116,11 @@ def download_model():
 
         with st.spinner("Downloading model..."):
 
-            urllib.request.urlretrieve(
-                MODEL_URL,
-                MODEL_PATH
+            gdown.download(
+                id=FILE_ID,
+                output=MODEL_PATH,
+                quiet=False
             )
-
-            st.success("Model downloaded successfully")
 
 
 
@@ -136,9 +137,10 @@ def load_model():
 
 
     checkpoint = torch.load(
-        MODEL_PATH,
-        map_location="cpu"
-    )
+    MODEL_PATH,
+    map_location=torch.device("cpu"),
+    weights_only=False
+)
 
 
     model.load_state_dict(
